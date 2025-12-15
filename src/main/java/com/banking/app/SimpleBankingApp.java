@@ -15,6 +15,8 @@ public class SimpleBankingApp {
     // In-memory storage for demo
     private final Map<String, String> users = new HashMap<>(); // username -> password
     private final Map<String, Document> accounts = new HashMap<>(); // accNum -> JDocs Document
+    // Map username to list of account numbers
+    private final Map<String, List<String>> userAccounts = new HashMap<>();
 
     public static void main(String[] args) {
         SpringApplication.run(SimpleBankingApp.class, args);
@@ -37,13 +39,14 @@ public class SimpleBankingApp {
     // Create account
     @PostMapping("/account")
     public String createAccount(@RequestParam String username) {
-        if (!users.containsKey(username)) return "No such user";
-        String accNum = UUID.randomUUID().toString();
-        Document acc = new JDocument();
-        acc.setString("$.owner", username);
-        acc.setBigDecimal("$.balance", BigDecimal.ZERO);
-        accounts.put(accNum, acc);
-        return accNum;
+    if (!users.containsKey(username)) return "No such user";
+    String accNum = UUID.randomUUID().toString();
+    Document acc = new JDocument();
+    acc.setString("$.owner", username);
+    acc.setBigDecimal("$.balance", BigDecimal.ZERO);
+    accounts.put(accNum, acc);
+    userAccounts.computeIfAbsent(username, k -> new ArrayList<>()).add(accNum);
+    return accNum;
     }
 
     // Get balance
@@ -88,5 +91,31 @@ public class SimpleBankingApp {
         src.setBigDecimal("$.balance", srcBal.subtract(amount));
         dst.setBigDecimal("$.balance", dst.getBigDecimal("$.balance").add(amount));
         return "Transferred";
+    }
+
+    // List all accounts for a user (returns list of account numbers)
+    @GetMapping("/accounts")
+    public List<String> listAccounts(@RequestParam String username) {
+        if (!users.containsKey(username)) return Collections.emptyList();
+        return userAccounts.getOrDefault(username, Collections.emptyList());
+    }
+
+    // Get all account details for a user (returns list of account JSON)
+    @GetMapping("/accounts/details")
+    public List<Map<String, Object>> listAccountDetails(@RequestParam String username) {
+        if (!users.containsKey(username)) return Collections.emptyList();
+        List<String> accNums = userAccounts.getOrDefault(username, Collections.emptyList());
+        List<Map<String, Object>> details = new ArrayList<>();
+        for (String accNum : accNums) {
+            Document acc = accounts.get(accNum);
+            if (acc != null) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("accNum", accNum);
+                map.put("owner", acc.getString("$.owner"));
+                map.put("balance", acc.getBigDecimal("$.balance"));
+                details.add(map);
+            }
+        }
+        return details;
     }
 }
