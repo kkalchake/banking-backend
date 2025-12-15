@@ -17,29 +17,26 @@ A minimal, modular, portfolio-quality Spring Boot banking backend using JDocs fo
 ## Setup & Run
 1. Clone the repo and navigate to this folder:
    ```sh
-   git clone <your-repo-url>
+   git clone https://github.com/kkalchake/banking-backend.git
    cd banking-backend
    ```
 2. Build and run:
    ```sh
    mvn clean package
    mvn spring-boot:run
-   # or
-   java -jar target/banking-backend-0.0.1-SNAPSHOT.jar
-   ```
 
 ## Example API Usage (with curl)
 - Register:
   ```sh
-  curl -X POST "http://localhost:8080/api/register?username=kamila&password=pass"
+  curl -X POST "http://localhost:8080/api/register?username=yourusername&password=yourpassword"
   ```
 - Login:
   ```sh
-  curl -X POST "http://localhost:8080/api/login?username=kamila&password=pass"
+  curl -X POST "http://localhost:8080/api/login?username=yourusername&password=yourpassword"
   ```
 - Create account:
   ```sh
-  curl -X POST "http://localhost:8080/api/account?username=kamila"
+  curl -X POST "http://localhost:8080/api/account?username=yourusername"
   # returns account number
   ```
 - Check balance:
@@ -63,6 +60,3 @@ A minimal, modular, portfolio-quality Spring Boot banking backend using JDocs fo
 - All data is in-memory and resets on restart.
 - JDocs is used for all account data (see `SimpleBankingApp.java`).
 - No database or extra config needed.
-
----
-This project demonstrates clean, innovative, and comprehensible code for a simple banking MVP.
